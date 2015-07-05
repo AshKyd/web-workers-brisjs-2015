@@ -31,7 +31,7 @@ addEventListener('load', function(){
         }
     });
 
-    var echoWorker = new Worker('/scripts/echoworker.js');
+    var echoWorker = new Worker('scripts/echoworker.js');
     echoWorker.onmessage = function(message){
         console.log('%cMessage from worker: ', 'color: darkred', message);
         window.echoWorkerMessage = message;
