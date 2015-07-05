@@ -1,5 +1,5 @@
-importScripts("/scripts/vendor/workerproxy.js");
-importScripts("/scripts/vendor/natural.js");
+importScripts("vendor/workerproxy.js");
+importScripts("vendor/natural.js");
 /**
  * Convert an arrayBuffer to string.
  * http://updates.html5rocks.com/2014/08/Easier-ArrayBuffer---String-conversion-with-the-Encoding-API
