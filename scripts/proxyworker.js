@@ -1,4 +1,4 @@
-importScripts("/node_modules/workerproxy/index.js");
+importScripts("/scripts/vendor/workerproxy.js");
 importScripts("/scripts/vendor/natural.js");
 /**
  * Convert an arrayBuffer to string.
