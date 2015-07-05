@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>What about Workers - Web workers talk by Ash Kyd</title>
+        <meta name="viewport" content="width=device-width">
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/headjs/1.0.3/head.min.js" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.1.0/js/reveal.js" defer></script>
+        <script src="node_modules/workerproxy/index.js" defer></script>
+        <script src="scripts/index.js" defer></script>
+
+        <link rel="stylesheet" type="text/css" href="styles/style.css">
+        <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.1.0/css/reveal.css">
+        <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.1.0/css/theme/black.css">
+        <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/3.1.0/lib/css/zenburn.min.css">
+
+    </head>
+    <body>
+        <div class="reveal">
+            <div class="slides">
+
+<section id="hello">
+    <h1>What about Workers?</h1>
+    <h2>Ash Kyd</h2>
+    <ul class="inline">
+        <li><a href="https://twitter.com/ashkyd">@ashkyd</a></li>
+        <li><a href="https://ash.ms">ash.ms</a></li>
+    </ul>
+</section>
+<section id="whats-a-worker">
+    <h2>What's a worker?</h2>
+    <p>A worker runs some code in a separate process.</p>
+    <p class="fragment">No DOM or window access, limited API.</p>
+    <p class="fragment">Communicates via postMessage API.</p>
+</section>
+<section id="whats-it-good-for">
+    <h2>Multiprocess Javascript!</h2>
+    <p>Pretty good sandbox</p>
+    <p>Ideal for discrete tasks</p>
+    <p>Longer running, CPU intensive</p>
+    <p>Frees up the render thread</p>
+</section>
+<section id="types">
+    <h2>Types of worker</h2>
+    <ul>
+        <li>
+            Web worker
+            <ul>
+                <li class="fragment">Dedicated worker</li>
+                <li class="fragment">Shared worker</li>
+            </ul>
+        </li>
+        <li class="fragment">Service worker</li>
+    </ul>
+</section>
+
+<section id="starting-a-worker">
+    <h2>Start up a worker</h2>
+    <p>index.js:</p>
+    <pre><code>
+var worker = new Worker('/worker.js');
+
+worker.onmessage = function(message){
+    console.log('Message from worker: ' + message.data);
+};
+
+worker.postMessage('Hello Worker!');
+    </code></pre>
+</section>
+
+<section id="worker-internals">
+    <h2>Worker internals</h2>
+    <p>worker.js:</p>
+    <pre><code>
+addEventListener('message', function(e) {
+    // Print the message
+    console.log('Message from page: ' + e.data);
+
+    // Send a greeting in reply.
+    if(e.data.match(/Hello/)){
+        postMessage('Hello back.');
+    }
+}, false);
+    </code></pre>
+</section>
+<section id="messaging">
+    <section id="postmessage-overview">
+        <h2>postMessage API</h2>
+        <pre><code>myWorker.postMessage([mixed] aMessage, [array] transferList);</code></pre>
+        <p class="fragment">Modern browsers support <a href="https://developer.mozilla.org/en-US/docs/Web/Guide/API/DOM/The_structured_clone_algorithm">Structured Clone</a>.</p>
+        <p class="fragment">Duplicates your <code>message</code> to send to the worker.</p>
+        <p class="fragment">Transfer ArrayBuffers via <code>transferList</code>.</p>
+    </section>
+    <section id="lets-poke-around" data-msg="Send a message to the worker with echoWorker.postMessage('hello worker!');">
+        <h2>Let's poke around&hellip;</h2>
+        <p>index.html</p>
+        <pre><code>
+var echoWorker = new Worker('/scripts/echoworker.js');
+echoWorker.onmessage = function(message){
+    console.log('%cMessage from worker: ', 'color: darkred', message);
+};
+        </code></pre>
+        <p>echoworker.js</p>
+        <pre><code>
+addEventListener('message', function(message) {
+    console.log('%cMessage from parent: ', 'color: blue', message);
+    postMessage(e.data);
+}, false);
+        </code></pre>
+    </section>
+    <section
+        id="transferrable-objects"
+        data-msg="Experiment with transferring window.arrayBuffer: echoWorker.postMessage(arrayBuffer, [arrayBuffer]);"
+        >
+        <h2>Transferrable objects</h2>
+        <div class="box">
+            <label class="input-button" for="arraybuffer-demo">
+                Choose a File
+                <input type="file" id="arraybuffer-demo">
+            </label>
+        </div>
+<pre><code>
+var selectedFile = document.getElementById('input').files[0];
+var reader = new FileReader();
+reader.onload = function(e){
+    window.arrayBuffer = e.target.result;
+    console.log('Loaded file, byteLength: ', arrayBuffer.byteLength);
+    console.groupEnd();
+};
+reader.readAsArrayBuffer(selectedFile);
+</pre></code>
+    </section>
+</section>
+<section id="apis">
+    <section
+        id="worker-scope"
+        data-msg="For a fun message, try importScripts('/scripts/funmessage.js');"
+        >
+        <h2>Worker Scope</h2>
+        <ul>
+            <li>WorkerGlobalScope.importScripts()</li>
+            <li>WorkerGlobalScope.close()</li>
+        </ul>
+    </section>
+    <section id="worker-functions">
+        <h2>APIs available</h2>
+        <p>Most of the non-DOM APIs are available.</p>
+        <ul>
+            <li>XHR <span class="fragment">👍</span></li>
+            <li>IndexedDB <span class="fragment">👍</span></li>
+            <li>WebSockets <span class="fragment">👍</span></li>
+            <li>et al</li>
+            <li class="fragment"><del>LocalStorage</del> 👎</li>
+        </ul>
+    </section>
+    <section id="window">
+        <h2>Solving for <code>window</code></h2>
+        <p>Lots of browser code expects the global to be <code>window</code></p>
+<pre>
+<code class="fragment">// Map `window` to `self` inside a closure
+(function(window){</code><code>    if(window.indexedDB){
+        doStuff();
+    }
+</code><code class="fragment">})(self);</code>
+</pre>
+
+<pre class="fragment"><code>// nuclear option
+self.window = self;</code></pre>
+    </section>
+</section>
+<section id="benchmarking">
+    <h2>How fast is it?</h2>
+    <p>Low-end Firefox OS benchmark (via <a href="https://hacks.mozilla.org/2015/07/how-fast-are-web-workers/">Mozilla Hacks</a>):</p>
+    <table>
+        <thead><tr><th>Operation</th><th>Cost</th></tr></thead>
+        <tbody>
+            <tr><td>Initialisation</td><td>~40ms</td></tr>
+            <tr><td>postMessage latency</td><td>~0.5ms</td></tr>
+            <tr><td>Communication speed</td><td>45kB/ms</td></tr>
+        </tbody>
+    </table>
+</section>
+<section id="app-layout">
+    <section id="app-layout-overview">
+        <h2>Building apps with workers</h2>
+        <p class="fragment">Opinion: Use fewer, generalist workers.</p>
+        <p class="fragment">Limit to CPU cores -1.</p>
+        <p class="fragment"<code>navigator.hardwareConcurrency</code> (and <a href="https://github.com/oftn/core-estimator">polyfills</a>)</p>
+    </section>
+    <section id="develop-a-protocol">
+        <h2>Develop a protocol</h2>
+        <p>Workers aren't smart, but you can make smart things.</p>
+        <ul>
+            <li class="fragment">Async “do something” API</li>
+            <li class="fragment">Run your model in a worker</li>
+            <li class="fragment">Misc, other!</li>
+        </ul>
+    </section>
+</section>
+<section id="implementations">
+    <section data-msg="Try: proxyWorker.greet('Ash', function(err, msg){console.log(msg);});">
+        <h2>Readymade implementations</h2>
+        <p><a href="https://www.npmjs.com/package/workerproxy">workerproxy</a>
+            gives you some sugar:</p>
+<pre><code>var proxyWorker = createWorkerProxy(new Worker('proxyworker.js'));
+</code></pre>
+<pre><code>createWorkerProxy({
+    greet: function(name, callback) {
+        callback(null, 'Hello, ' + name + '!');
+    },
+    tokenize: tokenize,
+    pluralize: pluralize
+}, {autoCallback: true});
+</code></pre>
+
+<div class="box fragment">
+    <label class="input-button" for="workerproxy-demo">
+        Choose a File
+        <input type="file" id="workerproxy-demo">
+    </label>
+</div>
+
+    </section>
+    <section id="workerify">
+        <h2>Workerify</h2>
+        <pre>npm install browserify workerify
+<span class="fragment">browserify -t <a href="https://www.npmjs.com/package/workerify">workerify</a> index.js</span></pre>
+
+        <pre class="fragment"><code>var worker = new Worker(window.URL.createObjectURL(
+    new Blob(['BROWSERIFIED CONTENTS OF worker.js'])
+));</code></pre>
+
+    </section>
+    <section id="workerify-caution">
+        <h2>Use with caution</h2>
+        <p>Only useful for dedicated worker.</p>
+        <p>Workerify can be difficult to debug.</p>
+        <p>Lose out on <a href="http://blog.chromium.org/2015/03/new-javascript-techniques-for-rapid.html">compiler optimisations</a>.</p>
+    </section>
+</section>
+<section>
+    <h2>Case studies are hard</h2>
+    <ul>
+        <li>Google Apps</li>
+        <li>mega.nz</li>
+        <li>Ace editor</li>
+        <li>Alchemize (shameless plug)</li>
+    </ul>
+    <p class="fragment">Workers are not something you notice.</p>
+</section>
+<section>
+    <section>
+        <h2>Can I use Web Workers?</h2>
+        <img src="images/web-worker.svg" alt="Yeah. It's at 86% market support.">
+    </section>
+    <section>
+        <video autoplay loop width=640 height=480 src="http://zippy.gfycat.com/MarriedPerfumedAlpinegoat.webm"></video>
+    </section>
+    <section>
+        <h2>Can I use Service Workers?</h2>
+        <img src="images/service-worker.svg" alt="Maybe. It's pretty much just Chrome right now.">
+    </section>
+    <section>
+        <h2>Can I use Service Workers?</h2>
+        <img src="images/service-worker-relative.svg" alt="Though that's still a large audience.">
+    </section>
+    <section>
+        <video autoplay loop width=640 height=480 src="https://zippy.gfycat.com/PlainSnoopyCurassow.webm"></video>
+    </section>
+</section>
+
+<section id="resources">
+    <h2>Some resources</h2>
+    <ul>
+        <li>
+            <a href="https://github.com/timdream/simworker">simworker</a>
+             - Dedicated worker polyfill
+            </a>
+        </li>
+        <li>
+            <a href="https://github.com/oftn/core-estimator">core-estimator</a>
+             - Estimate CPU count
+            </a>
+        </li>
+        <li>
+            <a href="https://www.npmjs.com/package/workerproxy">workerproxy</a>
+             - useful API/framework
+            </a>
+        </li>
+        <li>
+            <a href="https://www.npmjs.com/package/workerify">workerify</a>
+             - Browserify transform
+            </a>
+        </li>
+    </ul>
+</section>
+
+            </div>
+        </div>
+    </body>
+</html>

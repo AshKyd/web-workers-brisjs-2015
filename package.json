@@ -1,0 +1,21 @@
+{
+  "name": "web-workers-brisjs-2015",
+  "version": "1.0.0",
+  "description": "A talk on web workers in 2015.",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:AshKyd/web-workers-brisjs-2015.git"
+  },
+  "author": "Ash Kyd <ash@kyd.com.au>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AshKyd/web-workers-brisjs-2015/issues"
+  },
+  "scripts": {
+    "server": "python -m SimpleHTTPServer"
+  }
+}
