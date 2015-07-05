@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <title>What about Workers - Web workers talk by Ash Kyd</title>
+        <title>Multiprocess Javascript - Web workers talk by Ash Kyd</title>
         <meta name="viewport" content="width=device-width">
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/headjs/1.0.3/head.min.js" defer></script>
@@ -22,7 +22,7 @@
             <div class="slides">
 
 <section id="hello">
-    <h1>What about Workers?</h1>
+    <h1>Web workers?</h1>
     <h2>Ash Kyd</h2>
     <ul class="inline">
         <li><a href="https://twitter.com/ashkyd">@ashkyd</a></li>
@@ -166,8 +166,15 @@ reader.readAsArrayBuffer(selectedFile);
 </code><code class="fragment">})(self);</code>
 </pre>
 
-<pre class="fragment"><code>// nuclear option
-self.window = self;</code></pre>
+    </section>
+    <section>
+        <h2>Solving for <code>window</code></h2>
+<pre><code>
+// nuclear option
+self.window = self;
+
+</code></pre>
+        <video class="fragment" autoplay loop width=640 height=480 src="http://zippy.gfycat.com/MarriedPerfumedAlpinegoat.webm"></video>
     </section>
 </section>
 <section id="benchmarking">
@@ -222,6 +229,16 @@ self.window = self;</code></pre>
     </label>
 </div>
 
+<aside class="notes">
+<p>Commands to try:</p>
+<pre><code>proxyWorker.greet('Ash', function(err, msg){console.log(msg);});</code></pre>
+
+<pre><code>console.time('pluralize');
+proxyWorker.pluralize(arrayBuffer, function(err, msg){
+    console.log(msg.substr(0,1000));
+    console.timeEnd('pluralize');
+});</code></pre>
+</aside>
     </section>
     <section id="workerify">
         <h2>Workerify</h2>
@@ -236,7 +253,8 @@ self.window = self;</code></pre>
     <section id="workerify-caution">
         <h2>Use with caution</h2>
         <p>Only useful for dedicated worker.</p>
-        <p>Workerify can be difficult to debug.</p>
+        <p>Inlined files can be difficult to debug.</p>
+        <p>Can't (easily) uglify the worker code.</p>
         <p>Lose out on <a href="http://blog.chromium.org/2015/03/new-javascript-techniques-for-rapid.html">compiler optimisations</a>.</p>
     </section>
 </section>
@@ -251,23 +269,17 @@ self.window = self;</code></pre>
     <p class="fragment">Workers are not something you notice.</p>
 </section>
 <section>
-    <section>
+    <section id="caniuse-web-workers">
         <h2>Can I use Web Workers?</h2>
         <img src="images/web-worker.svg" alt="Yeah. It's at 86% market support.">
     </section>
-    <section>
-        <video autoplay loop width=640 height=480 src="http://zippy.gfycat.com/MarriedPerfumedAlpinegoat.webm"></video>
-    </section>
-    <section>
+    <section id="caniuse-service-workers">
         <h2>Can I use Service Workers?</h2>
         <img src="images/service-worker.svg" alt="Maybe. It's pretty much just Chrome right now.">
     </section>
-    <section>
+    <section id="caniuse-service-workers-byusage">
         <h2>Can I use Service Workers?</h2>
         <img src="images/service-worker-relative.svg" alt="Though that's still a large audience.">
-    </section>
-    <section>
-        <video autoplay loop width=640 height=480 src="https://zippy.gfycat.com/PlainSnoopyCurassow.webm"></video>
     </section>
 </section>
 
@@ -296,7 +308,14 @@ self.window = self;</code></pre>
         </li>
     </ul>
 </section>
-
+<section id="farewell">
+    <h1>Web workers!</h1>
+    <h2>Ash Kyd</h2>
+    <ul class="inline">
+        <li><a href="https://twitter.com/ashkyd">@ashkyd</a></li>
+        <li><a href="https://ash.ms">ash.ms</a></li>
+    </ul>
+</section>
             </div>
         </div>
     </body>
