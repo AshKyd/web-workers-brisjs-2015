@@ -107,8 +107,8 @@ echoWorker.onmessage = function(message){
         </code></pre>
         <p>echoworker.js</p>
         <pre><code>
-addEventListener('message', function(message) {
-    console.log('%cMessage from parent: ', 'color: blue', message);
+addEventListener('message', function(e) {
+    console.log('%cMessage from parent: ', 'color: blue', e.data);
     postMessage(e.data);
 }, false);
         </code></pre>
