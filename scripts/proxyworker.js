@@ -39,9 +39,9 @@ function pluralize(inputText){
 }
 
 createWorkerProxy({
-    greet: function(name, callback) {
-        callback(null, 'Hello, ' + name + '!');
+    greet: function(name) {
+        return 'Hello, ' + name + '!';
     },
     tokenize: tokenize,
     pluralize: pluralize
-}, {autoCallback: true});
+}, {autoCallback: true, catchErrors:false});
