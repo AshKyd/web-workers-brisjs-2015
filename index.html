@@ -29,7 +29,7 @@
         <li><a href="https://ash.ms">ash.ms</a></li>
     </ul>
     <code style="display:block;text-align:center;"><script>
-    document.write(String(window.location).replace(/https?:\/\//, ''));
+    document.write(String(window.location).replace(/https?:\/\//, '').replace(/#.*/,''));
     </script></code>
 </section>
 <section id="whats-a-worker">
