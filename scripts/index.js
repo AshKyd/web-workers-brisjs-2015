@@ -57,4 +57,9 @@ addEventListener('load', function(){
     };
     document.getElementById('arraybuffer-demo').onchange = inputOnChange;
     document.getElementById('workerproxy-demo').onchange = inputOnChange;
+
+    console.log([
+        'Hey, thanks for checking out the slides.',
+        'Leave the console open through the presentation for code snippets you can try out inline.'
+    ].join('\n'));
 });
